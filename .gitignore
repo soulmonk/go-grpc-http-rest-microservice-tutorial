@@ -1,0 +1,3 @@
+.idea
+/cmd/server/server
+/pkg/api/v1/todo-service.pb.go
