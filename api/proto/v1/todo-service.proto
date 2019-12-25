@@ -33,7 +33,7 @@ message CreateResponse {
     int64 id = 2;
 }
 // Request data to read todo task
-message ReadRequest{
+message ReadRequest {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
@@ -42,7 +42,7 @@ message ReadRequest{
 }
 
 // Contains todo task data specified in by ID request
-message ReadResponse{
+message ReadResponse {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
@@ -51,7 +51,7 @@ message ReadResponse{
 }
 
 // Request data to update todo task
-message UpdateRequest{
+message UpdateRequest {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
@@ -60,7 +60,7 @@ message UpdateRequest{
 }
 
 // Contains status of update operation
-message UpdateResponse{
+message UpdateResponse {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
@@ -70,7 +70,7 @@ message UpdateResponse{
 }
 
 // Request data to delete todo task
-message DeleteRequest{
+message DeleteRequest {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
@@ -79,7 +79,7 @@ message DeleteRequest{
 }
 
 // Contains status of delete operation
-message DeleteResponse{
+message DeleteResponse {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
@@ -89,13 +89,13 @@ message DeleteResponse{
 }
 
 // Request data to read all todo task
-message ReadAllRequest{
+message ReadAllRequest {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 }
 
 // Contains list of all todo tasks
-message ReadAllResponse{
+message ReadAllResponse {
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
@@ -106,17 +106,17 @@ message ReadAllResponse{
 // Service to manage list of todo tasks
 service ToDoService {
     // Create new todo task
-    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Create (CreateRequest) returns (CreateResponse);
 
     // Read todo task
-    rpc Read(ReadRequest) returns (ReadResponse);
+    rpc Read (ReadRequest) returns (ReadResponse);
 
     // Update todo task
-    rpc Update(UpdateRequest) returns (UpdateResponse);
+    rpc Update (UpdateRequest) returns (UpdateResponse);
 
     // Delete todo task
-    rpc Delete(DeleteRequest) returns (DeleteResponse);
+    rpc Delete (DeleteRequest) returns (DeleteResponse);
 
     // Read all todo tasks
-    rpc ReadAll(ReadAllRequest) returns (ReadAllResponse);
+    rpc ReadAll (ReadAllRequest) returns (ReadAllResponse);
 }

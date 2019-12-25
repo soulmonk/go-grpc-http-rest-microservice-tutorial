@@ -14,16 +14,6 @@ import (
 	"github.com/soulmonk/go-grpc-http-rest-microservice-tutorial/pkg/api/v1"
 )
 
-type test struct {
-	name      string
-	s         v1.ToDoServiceServer
-	args      args
-	mock      func()
-	want      *v1.CreateResponse
-	wantErr   bool
-	expectErr string
-}
-
 func Test_toDoServiceServer_Create(t *testing.T) {
 	ctx := context.Background()
 	db, mock, err := sqlmock.New()
@@ -39,7 +29,15 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 		ctx context.Context
 		req *v1.CreateRequest
 	}
-	tests := []test{
+	tests := []struct {
+		name      string
+		s         v1.ToDoServiceServer
+		args      args
+		mock      func()
+		want      *v1.CreateResponse
+		wantErr   bool
+		expectErr string
+	}{
 		{
 			name: "OK",
 			s:    s,
