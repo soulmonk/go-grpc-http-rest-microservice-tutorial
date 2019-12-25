@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	"reflect"
@@ -14,6 +13,16 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/soulmonk/go-grpc-http-rest-microservice-tutorial/pkg/api/v1"
 )
+
+type test struct {
+	name      string
+	s         v1.ToDoServiceServer
+	args      args
+	mock      func()
+	want      *v1.CreateResponse
+	wantErr   bool
+	expectErr string
+}
 
 func Test_toDoServiceServer_Create(t *testing.T) {
 	ctx := context.Background()
@@ -30,14 +39,7 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 		ctx context.Context
 		req *v1.CreateRequest
 	}
-	tests := []struct {
-		name    string
-		s       v1.ToDoServiceServer
-		args    args
-		mock    func()
-		want    *v1.CreateResponse
-		wantErr bool
-	}{
+	tests := []test{
 		{
 			name: "OK",
 			s:    s,
@@ -79,8 +81,9 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 					},
 				},
 			},
-			mock:    func() {},
-			wantErr: true,
+			mock:      func() {},
+			wantErr:   true,
+			expectErr: "rpc error: code = Unimplemented desc = unsupported API version: service implements API version 'v1', but asked for 'v1000'",
 		},
 		{
 			name: "Invalid Reminder field format",
@@ -120,7 +123,8 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 				mock.ExpectQuery("INSERT INTO ToDo").WithArgs("title", "description", tm).
 					WillReturnError(errors.New("INSERT failed"))
 			},
-			wantErr: true,
+			wantErr:   true,
+			expectErr: "rpc error: code = Unknown desc = failed to insert into ToDo-> INSERT failed",
 		},
 		// no such function in PG
 		//{
@@ -145,14 +149,22 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 		//},
 	}
 	for _, tt := range tests {
-		fmt.Println("Running test: " + tt.name)
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mock()
 			got, err := tt.s.Create(tt.args.ctx, tt.args.req)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("toDoServiceServer.Create() error = %v, wantErr %v", err, tt.wantErr)
-				return
+
+			if err != nil {
+				if len(tt.expectErr) > 0 && err.Error() != tt.expectErr {
+					t.Errorf("toDoServiceServer.Create() error = %v, wantErr %v", err, tt.expectErr)
+					return
+				}
+
+				if !tt.wantErr {
+					t.Errorf("toDoServiceServer.Create() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
 			}
+
 			if err == nil && !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("toDoServiceServer.Create() = %v, want %v", got, tt.want)
 			}
