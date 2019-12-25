@@ -80,8 +80,6 @@ func (s *toDoServiceServer) Create(ctx context.Context, req *v1.CreateRequest) (
 		return nil, status.Error(codes.Unknown, "failed to insert into ToDo-> "+err.Error())
 	}
 
-	fmt.Println("Result of query is", td.Id)
-
 	return &v1.CreateResponse{
 		Api: apiVersion,
 		Id:  td.Id,
