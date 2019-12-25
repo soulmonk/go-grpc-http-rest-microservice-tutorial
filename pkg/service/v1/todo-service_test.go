@@ -14,6 +14,16 @@ import (
 	"github.com/soulmonk/go-grpc-http-rest-microservice-tutorial/pkg/api/v1"
 )
 
+type test struct {
+	name      string
+	s         v1.ToDoServiceServer
+	args      struct{}
+	mock      func()
+	want      *v1.CreateResponse
+	wantErr   bool
+	expectErr string
+}
+
 func Test_toDoServiceServer_Create(t *testing.T) {
 	ctx := context.Background()
 	db, mock, err := sqlmock.New()
@@ -29,18 +39,25 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 		ctx context.Context
 		req *v1.CreateRequest
 	}
+
 	tests := []struct {
-		name      string
-		s         v1.ToDoServiceServer
-		args      args
-		mock      func()
-		want      *v1.CreateResponse
-		wantErr   bool
-		expectErr string
+		test
+		args args
 	}{
 		{
-			name: "OK",
-			s:    s,
+			test: test{
+				name: "OK",
+				s:    s,
+				mock: func() {
+					rows := sqlmock.NewRows([]string{"ID"}).
+						AddRow(1)
+					mock.ExpectQuery("INSERT INTO ToDo").WithArgs("title", "description", tm).WillReturnRows(rows)
+				},
+				want: &v1.CreateResponse{
+					Api: "v1",
+					Id:  1,
+				},
+			},
 			args: args{
 				ctx: ctx,
 				req: &v1.CreateRequest{
@@ -52,19 +69,15 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 					},
 				},
 			},
-			mock: func() {
-				rows := sqlmock.NewRows([]string{"ID"}).
-					AddRow(1)
-				mock.ExpectQuery("INSERT INTO ToDo").WithArgs("title", "description", tm).WillReturnRows(rows)
-			},
-			want: &v1.CreateResponse{
-				Api: "v1",
-				Id:  1,
-			},
 		},
 		{
-			name: "Unsupported API",
-			s:    s,
+			test: test{
+				name:      "Unsupported API",
+				s:         s,
+				mock:      func() {},
+				wantErr:   true,
+				expectErr: "rpc error: code = Unimplemented desc = unsupported API version: service implements API version 'v1', but asked for 'v1000'",
+			},
 			args: args{
 				ctx: ctx,
 				req: &v1.CreateRequest{
@@ -79,13 +92,15 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 					},
 				},
 			},
-			mock:      func() {},
-			wantErr:   true,
-			expectErr: "rpc error: code = Unimplemented desc = unsupported API version: service implements API version 'v1', but asked for 'v1000'",
 		},
 		{
-			name: "Invalid Reminder field format",
-			s:    s,
+
+			test: test{
+				name:    "Invalid Reminder field format",
+				s:       s,
+				mock:    func() {},
+				wantErr: true,
+			},
 			args: args{
 				ctx: ctx,
 				req: &v1.CreateRequest{
@@ -100,12 +115,18 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 					},
 				},
 			},
-			mock:    func() {},
-			wantErr: true,
 		},
 		{
-			name: "INSERT failed",
-			s:    s,
+			test: test{
+				name: "INSERT failed",
+				s:    s,
+				mock: func() {
+					mock.ExpectQuery("INSERT INTO ToDo").WithArgs("title", "description", tm).
+						WillReturnError(errors.New("INSERT failed"))
+				},
+				wantErr:   true,
+				expectErr: "rpc error: code = Unknown desc = failed to insert into ToDo-> INSERT failed",
+			},
 			args: args{
 				ctx: ctx,
 				req: &v1.CreateRequest{
@@ -117,12 +138,6 @@ func Test_toDoServiceServer_Create(t *testing.T) {
 					},
 				},
 			},
-			mock: func() {
-				mock.ExpectQuery("INSERT INTO ToDo").WithArgs("title", "description", tm).
-					WillReturnError(errors.New("INSERT failed"))
-			},
-			wantErr:   true,
-			expectErr: "rpc error: code = Unknown desc = failed to insert into ToDo-> INSERT failed",
 		},
 		// no such function in PG
 		//{
