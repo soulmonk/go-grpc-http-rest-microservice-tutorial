@@ -21,7 +21,7 @@ func RunServer(ctx context.Context, v1API v1.ToDoServiceServer, port string) err
 	}
 
 	// gRPC server statup options
-	opts := []grpc.ServerOption{}
+	var opts []grpc.ServerOption
 
 	// add middleware
 	opts = middleware.AddLogging(logger.Log, opts)

@@ -51,8 +51,8 @@ func main() {
 	}
 	err = json.Unmarshal(bodyBytes, &created)
 	if err != nil {
-		log.Fatalf("failed to unmarshal JSON response of Create method: %v", err)
 		fmt.Println("error:", err)
+		log.Fatalf("failed to unmarshal JSON response of Create method: %v", err)
 	}
 
 	// Call Read
