@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/soulmonk/go-grpc-http-rest-microservice-tutorial/pkg/cmd"
 	"os"
-
-	"github.com/soulmonk/go-grpc-http-rest-microservice-tutorial/pkg/cmd/server"
 )
 
 func main() {
