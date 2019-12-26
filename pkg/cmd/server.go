@@ -1,7 +1,7 @@
 package cmd
 
 import (
-  "context"
+	"context"
 	"flag"
 	"fmt"
 	"github.com/jmoiron/sqlx"
