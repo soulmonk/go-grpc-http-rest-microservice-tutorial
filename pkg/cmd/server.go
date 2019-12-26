@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/soulmonk/go-grpc-http-rest-microservice-tutorial/pkg/logger"
 
 	//"github.com/jmoiron/sqlx" TODO
 	"log"
@@ -36,6 +37,12 @@ type Config struct {
 	HTTPPort string
 
 	Db PG
+
+	// Log parameters section
+	// LogLevel is global log level: Debug(-1), Info(0), Warn(1), Error(2), DPanic(3), Panic(4), Fatal(5)
+	LogLevel int
+	// LogTimeFormat is print time format for logger e.g. 2006-01-02T15:04:05Z07:00
+	LogTimeFormat string
 }
 
 // RunServer runs gRPC server and HTTP gateway
@@ -52,6 +59,9 @@ func RunServer() error {
 	flag.StringVar(&cfg.Db.User, "db-user", "", "Database user")
 	flag.StringVar(&cfg.Db.Password, "db-password", "", "Database password")
 	flag.StringVar(&cfg.Db.Dbname, "db-name", "", "Database name")
+	flag.IntVar(&cfg.LogLevel, "log-level", 0, "Global log level")
+	flag.StringVar(&cfg.LogTimeFormat, "log-time-format", "",
+		"Print time format for logger e.g. 2006-01-02T15:04:05Z07:00")
 	flag.Parse()
 
 	if len(cfg.GRPCPort) == 0 {
@@ -59,6 +69,11 @@ func RunServer() error {
 	}
 	if len(cfg.HTTPPort) == 0 {
 		return fmt.Errorf("invalid TCP port for HTTP getaway: '%s'", cfg.HTTPPort)
+	}
+
+	// initialize logger
+	if err := logger.Init(cfg.LogLevel, cfg.LogTimeFormat); err != nil {
+		return fmt.Errorf("failed to initialize logger: %v", err)
 	}
 
 	var err error

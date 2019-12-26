@@ -50,7 +50,7 @@ build-all:
 	@echo "  >  Build all"
 	@-$(MAKE) gen-proto build-server
 
-## run-server: RUN_OPTIONS='-grpc-port= -db-host= --db-port= -db-user= -db-password= -db-name='
+## run-server: RUN_OPTIONS='-grpc-port= -http-port= -db-host= --db-port= -db-user= -db-password= -db-name= -log-level=-1 -log-time-format=2006-01-02T15:04:05.999999999Z07:00'
 run-server:
 	@echo "  >  Running server"
 	@$(PROJ_BUILD_PATH)/server $(RUN_OPTIONS)
