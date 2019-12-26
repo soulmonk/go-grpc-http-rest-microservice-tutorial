@@ -40,6 +40,7 @@ type Config struct {
 
 // RunServer runs gRPC server and HTTP gateway
 func RunServer() error {
+	// new line
 	ctx := context.Background()
 
 	// get configuration
